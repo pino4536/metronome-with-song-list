@@ -1,0 +1,523 @@
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+					<meta name="description" content="Web-based mobile-friendly metronome with song charting">
+						<link rel="icon" type="image/png" href="static/favicon.png">
+							<title>Mtrnm</title>
+							<link rel="stylesheet" type="text/css" href="src/bootstrap/bootstrap.min.css">
+								<script defer="" src="src/bootstrap/jquery-3.5.0.min.js"></script>
+								<script defer="" src="src/bootstrap/bootstrap.min.js"></script>
+								<link rel="stylesheet" type="text/css" href="src/fontawesome/css/regular.min.css">
+									<link rel="stylesheet" type="text/css" href="src/fontawesome/css/fontawesome.min.css">
+										<link rel="stylesheet" type="text/css" href="src/css/app.css">
+											<script defer="" src="src/js/vue.js"></script>
+											<script defer="" src="src/js/AudioContextMonkeyPatch.js"></script>
+											<script defer="" src="src/js/mousetrap.min.js"></script>
+											<script defer="" src="src/js/mousetrap-global.min.js"></script>
+											<script defer="" src="dist/bundle.js"></script>
+										</head>
+										<body>
+											<div id="vueApp">
+												<div id="controls" class="container-fluid fixed">
+													<div class="row">
+														<div class="col text-center font-weight-light d-flex align-items-center justify-content-center">
+															<span>Settings</span>
+														</div>
+														<div class="col">
+															<h2 class="text-center">
+																<i class="far fa-lg fa-play-circle"></i>
+															</h2>
+														</div>
+														<div class="col text-center font-weight-light d-flex align-items-center justify-content-center">
+															<span>Chart</span>
+														</div>
+													</div>
+												</div>
+												<div id="settings" class="container-fluid fixed">
+													<hr class="invisible">
+														<div class="row">
+															<div class="col text-center d-flex align-items-center justify-content-center">
+																<a class="small">Popout</a>
+															</div>
+															<div class="col text-center">
+																<h2 class="font-weight-light">Settings</h2>
+															</div>
+															<div class="col text-center d-flex align-items-center justify-content-center">
+																<h2>
+																	<button type="button" aria-label="Close" class="close">
+																		<span aria-hidden="true">×</span>
+																	</button>
+																</h2>
+															</div>
+														</div>
+														<hr>
+															<hr class="invisible small">
+																<div class="form-row align-items-center">
+																	<div class="col-9">
+																		<div class="form-check mb-2 custom-control custom-checkbox">
+																			<input id="enableCountIn" type="checkbox" class="custom-control-input">
+																				<label for="enableCountIn" class="custom-control-label">&nbsp;Count in measures</label>
+																			</div>
+																		</div>
+																		<div class="col-3">
+																			<label for="countInMeasures" class="sr-only">Measures</label>
+																			<input id="countInMeasures" type="numeric" inputmode="numeric" aria-describedby="enable count in" min="0" step="1" pattern="[0-9]+" title="count in measures" placeholder="Measures" class="form-control mb-2">
+																			</div>
+																		</div>
+																		<hr class="invisible small">
+																			<div class="form-row align-items-center">
+																				<div class="col">
+																					<div class="form-check mb-2 custom-control custom-checkbox">
+																						<input id="enableSectionChangeVisualCues" type="checkbox" class="custom-control-input">
+																							<label for="enableSectionChangeVisualCues" class="custom-control-label">&nbsp;Enable visual cues (highlights) before section changes</label>
+																						</div>
+																					</div>
+																				</div>
+																				<hr class="invisible small">
+																					<div class="form-row">
+																						<div class="col-9">
+																							<label for="yellowLength">Yellow measures</label>
+																						</div>
+																						<div class="col-3">
+																							<input id="yellowLength" type="numeric" inputmode="numeric" aria-describedby="number of yellow measures" min="0" step="1" pattern="[0-9]+" title="yellow measures" placeholder="Measures" class="form-control mb-2">
+																							</div>
+																						</div>
+																						<div class="form-row">
+																							<div class="col-9">
+																								<label for="redLength">Red measures</label>
+																							</div>
+																							<div class="col-3">
+																								<input id="redLength" type="numeric" inputmode="numeric" aria-describedby="number of red measures" min="0" step="1" pattern="[0-9]+" title="red measures" placeholder="Measures" class="form-control mb-2">
+																								</div>
+																							</div>
+																							<hr class="invisible small">
+																								<div class="form-row align-items-center">
+																									<div class="col">
+																										<div class="form-check mb-2 custom-control custom-checkbox">
+																											<input id="flashRedOnFirstBeat" type="checkbox" class="custom-control-input">
+																												<label for="flashRedOnFirstBeat" class="custom-control-label">&nbsp;Flash red on first beat</label>
+																											</div>
+																										</div>
+																									</div>
+																									<hr class="invisible small">
+																										<div class="form-row align-items-center">
+																											<div class="col">
+																												<div class="form-check mb-2 custom-control custom-checkbox">
+																													<input id="hidePastSections" type="checkbox" class="custom-control-input">
+																														<label for="hidePastSections" class="custom-control-label">&nbsp;Hide past sections</label>
+																													</div>
+																												</div>
+																											</div>
+																											<hr class="invisible small">
+																												<div class="row">
+																													<div class="col">
+																														<label for="sampleSelect">Sound</label>
+																														<select id="sampleSelect" class="custom-select">
+																															<option value="BEEP_HIGH" selected="selected">Beep high</option>
+																															<option value="BEEP_LOW" selected="selected">Beep low</option>
+																															<option value="HIHAT">Hi-hat</option>
+																														</select>
+																													</div>
+																												</div>
+																												<hr class="invisible small">
+																													<div class="row">
+																														<div class="col">
+																															<div class="form-group">
+																																<label for="gainLevel">Audio volume</label>
+																																<input id="gainLevel" type="range" min="0" max="1.2" step="0.05" class="form-control-range">
+																																</div>
+																															</div>
+																														</div>
+																														<hr>
+																															<div class="row">
+																																<div class="col">
+																																	<h4 class="font-weight-light">Shortcuts</h4>
+																																</div>
+																															</div>
+																															<div class="row">
+																																<div class="col">
+																																	<table class="table table-sm table-borderless font-weight-light">
+																																		<tbody>
+																																			<tr>
+																																				<td>space</td>
+																																				<td>Start/stop.</td>
+																																			</tr>
+																																			<tr>
+																																				<td>t / b</td>
+																																				<td>Focus on tempo box or subdivision select box.</td>
+																																			</tr>
+																																			<tr>
+																																				<td>.</td>
+																																				<td>Tap tempo.</td>
+																																			</tr>
+																																			<tr>
+																																				<td>j / k</td>
+																																				<td>Decrease or increase tempo by 1 BPM.</td>
+																																			</tr>
+																																			<tr>
+																																				<td>m / ,</td>
+																																				<td>Decrease or increase tempo by 5 BPM.</td>
+																																			</tr>
+																																		</tbody>
+																																	</table>
+																																</div>
+																															</div>
+																															<hr>
+																																<div class="row">
+																																	<div class="col">
+																																		<span class="small">
+																																			<a href="https://thenounproject.com/andrea.verzola1/uploads/?i=173952" target="_blank">Metronome icon</a>
+by
+
+																																			<a href="https://thenounproject.com/andrea.verzola1/" target="_blank">andrea.verzola1</a>
+from the Noun project as favicon. CC license.
+																																		</span>
+																																	</div>
+																																</div>
+																															</div>
+																															<div id="body" class="container-fluid">
+																																<hr class="invisible">
+																																	<div class="row">
+																																		<div class="col">
+																																			<h1 class="text-center font-weight-light">
+																																				<img id="header-icon" src="static/favicon.png"> Mtrnm
+																																				</h1>
+																																			</div>
+																																		</div>
+																																		<div class="row">
+																																			<div class="col">
+																																				<hr>
+																																				</div>
+																																				<div class="col-auto">Tempo</div>
+																																				<div class="col">
+																																					<hr>
+																																					</div>
+																																				</div>
+																																				<div class="row">
+																																					<div class="col input-group input-group-lg">
+																																						<div class="input-group-prepend">
+																																							<span id="tempo" class="input-group-text">BPM</span>
+																																						</div>
+																																						<input id="tempoBox" type="number" inputmode="numeric" aria-describedby="tempo" min="0" step="1" pattern="[0-9]+" title="beats per minute" placeholder="beats per minute" class="form-control text-center">
+																																							<select id="subdivisionBox" class="custom-select">
+																																								<option selected="selected" value="0">qtr</option>
+																																								<option value="1">8th</option>
+																																								<option value="2">16th</option>
+																																							</select>
+																																							<div class="input-group-append">
+																																								<button type="button" class="btn btn-outline-secondary">Tap</button>
+																																							</div>
+																																						</div>
+																																					</div>
+																																					<hr class="invisible small">
+																																						<div class="row">
+																																							<div class="col-2">
+																																								<a class="btn btn-default">÷2</a>
+																																							</div>
+																																							<div class="col-2">
+																																								<a class="btn btn-default">-5</a>
+																																							</div>
+																																							<div class="col-2">
+																																								<a class="btn btn-default">-1</a>
+																																							</div>
+																																							<div class="col-2">
+																																								<a class="btn btn-default">+1</a>
+																																							</div>
+																																							<div class="col-2">
+																																								<a class="btn btn-default">+5</a>
+																																							</div>
+																																							<div class="col-2">
+																																								<a class="btn btn-default">×2</a>
+																																							</div>
+																																						</div>
+																																						<hr class="invisible small">
+																																							<div class="row">
+																																								<div class="col">
+																																									<div id="viz-container">
+																																										<canvas id="viz" width="1333" height="70"></canvas>
+																																									</div>
+																																								</div>
+																																							</div>
+																																							<hr class="invisible small">
+																																								<div id="chart" class="container-fluid collapse show">
+																																									<div class="row">
+																																										<div class="col">
+																																											<hr>
+																																											</div>
+																																											<div class="col-auto">Song Chart</div>
+																																											<div class="col">
+																																												<hr>
+																																												</div>
+																																											</div>
+																																											<div class="row">
+																																												<div class="col-8">
+																																													<span>Nứt</span>&nbsp; - &nbsp;
+																																													<span>Ngọt</span>
+																																												</div>
+																																												<div class="col-4 text-right">
+																																													<!---->
+																																												</div>
+																																											</div>
+																																											<div class="row">
+																																												<div class="col-8">Measures: &nbsp;
+																																													<span class="text-monospace">1</span>
+																																												</div>
+																																												<div class="col-4 text-right">
+																																													<span class="text-monospace">
+																																														<span class="">
+																																															<span>1</span>.
+																																															<span>1</span>
+																																														</span>
+																																														<span>&nbsp;</span>/
+																																														<span>&nbsp;16</span>
+																																													</span>
+																																												</div>
+																																											</div>
+																																											<hr class="small">
+																																												<div id="songChart" class="row">
+																																													<div class="col">
+																																														<ul class="list-group list-group-flush">
+																																															<li class="list-group-item list-group-item-primary">
+																																																<div class="section name">
+																																																	<div class="row">
+																																																		<div class="col">1: Intro</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<span class="text-right">1 /</span>
+																																																			<span>&nbsp;16</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row selected">
+																																																		<div class="col">Piano</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<span>1 /</span>
+																																																			<span>&nbsp;8</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Guitar</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;6</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Fill</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;2</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																															</li>
+																																														</ul>
+																																														<ul class="list-group list-group-flush">
+																																															<li class="list-group-item">
+																																																<div class="section name">
+																																																	<div class="row">
+																																																		<div class="col">2: Solo</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;19</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Chorus Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;8</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Chorus Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;6</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Fill</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;5</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																															</li>
+																																														</ul>
+																																														<ul class="list-group list-group-flush">
+																																															<li class="list-group-item">
+																																																<div class="section name">
+																																																	<div class="row">
+																																																		<div class="col">3: Verse</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;19</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Verse Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;9</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Verse Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;9</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Fill</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;1</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																															</li>
+																																														</ul>
+																																														<ul class="list-group list-group-flush">
+																																															<li class="list-group-item">
+																																																<div class="section name">
+																																																	<div class="row">
+																																																		<div class="col">4: Prechorus</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;8</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Verse Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;6</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Fill</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;2</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																															</li>
+																																														</ul>
+																																														<ul class="list-group list-group-flush">
+																																															<li class="list-group-item">
+																																																<div class="section name">
+																																																	<div class="row">
+																																																		<div class="col">5: Chorus</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;16</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Chorus Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;8</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Chorus Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;8</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																															</li>
+																																														</ul>
+																																														<ul class="list-group list-group-flush">
+																																															<li class="list-group-item">
+																																																<div class="section name">
+																																																	<div class="row">
+																																																		<div class="col">6: Interlude/Solo</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;19</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Chorus Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;8</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Chorus Groove</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;6</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																																<div class="subsection font-weight-light">
+																																																	<div class="row">
+																																																		<div class="col">Fill</div>
+																																																		<div class="col text-right text-monospace">
+																																																			<!---->
+																																																			<span>&nbsp;5</span>
+																																																		</div>
+																																																	</div>
+																																																</div>
+																																															</li>
+																																														</ul>
+																																													</div>
+																																												</div>
+																																												<hr>
+																																													<div class="row">
+																																														<div class="col text-center">
+																																															<a>+ Add section</a>
+																																														</div>
+																																													</div>
+																																												</div>
+																																												<hr class="invisible">
+																																													<div class="row fixed invisible">
+																																														<div class="col">
+																																															<h2 class="text-center">
+																																																<i class="far fa-lg fa-play-circle"></i>
+																																															</h2>
+																																														</div>
+																																													</div>
+																																												</div>
+																																											</div>
+																																										</body>
+																																									</html>
